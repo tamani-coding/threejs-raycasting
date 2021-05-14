@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
-
 // CAMERA
 const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 1500);
 camera.position.set(-35, 70, 100);
@@ -14,6 +13,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
+// WINDOW RESIZE HANDLING
 export function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -34,47 +34,21 @@ export function animate() {
   requestAnimationFrame(animate);
 }
 
-function dragObject() {
-  if (draggable != null) {
-    let currentPosition = draggable.position;
-
-    const found = intersect(moveMouse);
-    if (found.length > 0) {
-      for (let i = 0; i < found.length; i++) {
-        if (!found[i].object.userData.floor)
-          continue
-        
-        let target = found[i].point;
-        draggable.position.x = target.x
-        draggable.position.z = target.z
-      }
-    }
-  }
-}
-
-
-//Add hemisphere light
-let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.1);
-hemiLight.color.setHSL(0.6, 0.6, 0.6);
-hemiLight.groundColor.setHSL(0.1, 1, 0.4);
-hemiLight.position.set(0, 50, 0);
+// ambient light
+let hemiLight = new THREE.AmbientLight(0xffffff, 0.20);
 scene.add(hemiLight);
 
 //Add directional light
 let dirLight = new THREE.DirectionalLight(0xffffff, 1);
-dirLight.color.setHSL(0.1, 1, 0.95);
-dirLight.position.set(-1, 1.75, 1);
-dirLight.position.multiplyScalar(100);
+dirLight.position.set(-30, 50, -30);
 scene.add(dirLight);
 dirLight.castShadow = true;
 dirLight.shadow.mapSize.width = 2048;
 dirLight.shadow.mapSize.height = 2048;
-dirLight.shadow.camera.left = -50;
-dirLight.shadow.camera.right = 50;
-dirLight.shadow.camera.top = 50;
-dirLight.shadow.camera.bottom = -50;
-
-dirLight.shadow.camera.far = 13500;
+dirLight.shadow.camera.left = -70;
+dirLight.shadow.camera.right = 70;
+dirLight.shadow.camera.top = 70;
+dirLight.shadow.camera.bottom = -70;
 
 function createFloor() {
   let pos = { x: 0, y: -1, z: 3 };
@@ -90,7 +64,6 @@ function createFloor() {
 
   blockPlane.userData.floor = true
 }
-
 
 // box
 function createBox() {
@@ -142,14 +115,12 @@ function createCylinder() {
 }
 
 const raycaster = new THREE.Raycaster(); // create once
-const clickMouse = new THREE.Vector2(); // create once
-const moveMouse = new THREE.Vector2(); // create once
+const clickMouse = new THREE.Vector2();  // create once
+const moveMouse = new THREE.Vector2();   // create once
 var draggable: THREE.Object3D;
 
 function intersect(pos: THREE.Vector2) {
-  // update the picking ray with the camera and mouse position
   raycaster.setFromCamera(pos, camera);
-
   return raycaster.intersectObjects(scene.children);
 }
 
@@ -163,9 +134,10 @@ window.addEventListener('click', event => {
   // THREE RAYCASTER
   clickMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   clickMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
   const found = intersect(clickMouse);
   if (found.length > 0) {
-    if (found[0].object.userData.draggable && found[0].object.userData.draggable == true) {
+    if (found[0].object.userData.draggable) {
       draggable = found[0].object
       console.log(`found draggable ${draggable.userData.name}`)
     }
@@ -176,6 +148,22 @@ window.addEventListener('mousemove', event => {
   moveMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   moveMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 });
+
+function dragObject() {
+  if (draggable != null) {
+    const found = intersect(moveMouse);
+    if (found.length > 0) {
+      for (let i = 0; i < found.length; i++) {
+        if (!found[i].object.userData.floor)
+          continue
+        
+        let target = found[i].point;
+        draggable.position.x = target.x
+        draggable.position.z = target.z
+      }
+    }
+  }
+}
 
 
 createFloor()
