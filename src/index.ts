@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 
 // CAMERA
 const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 1500);
@@ -68,7 +69,7 @@ function createFloor() {
 // box
 function createBox() {
   let scale = { x: 6, y: 6, z: 6 }
-  let pos = { x: -10, y: scale.y / 2, z: 0 }
+  let pos = { x: 15, y: scale.y / 2, z: 15 }
 
   let box = new THREE.Mesh(new THREE.BoxBufferGeometry(), 
       new THREE.MeshPhongMaterial({ color: 0xDC143C }));
@@ -84,7 +85,7 @@ function createBox() {
 
 function createSphere() {
   let radius = 4;
-  let pos = { x: 10, y: radius, z: 0 };
+  let pos = { x: 15, y: radius, z: -15 };
 
   let sphere = new THREE.Mesh(new THREE.SphereBufferGeometry(radius, 32, 32), 
       new THREE.MeshPhongMaterial({ color: 0x43a1f4 }))
@@ -100,7 +101,7 @@ function createSphere() {
 function createCylinder() {
   let radius = 4;
   let height = 6
-  let pos = { x: -25, y: height / 2, z: 0 };
+  let pos = { x: -15, y: height / 2, z: 15 };
 
   // threejs
   let cylinder = new THREE.Mesh(new THREE.CylinderBufferGeometry(radius, radius, height, 32), new THREE.MeshPhongMaterial({ color: 0x90ee90 }))
@@ -112,6 +113,29 @@ function createCylinder() {
   //Ammojs
   cylinder.userData.draggable = true
   cylinder.userData.name = 'CYLINDER'
+}
+
+function createCastle () {
+  const objLoader = new OBJLoader();
+
+  objLoader.loadAsync('./castle.obj').then((group) => {
+    const castle = group.children[0];
+
+    castle.position.x = -15
+    castle.position.z = -15
+
+    castle.scale.x = 5;
+    castle.scale.y = 5;
+    castle.scale.z = 5;
+
+    castle.castShadow = true
+    castle.receiveShadow = true
+
+    castle.userData.draggable = true
+    castle.userData.name = 'CASTLE'
+
+    scene.add(castle)
+  })
 }
 
 const raycaster = new THREE.Raycaster(); // create once
@@ -170,5 +194,6 @@ createFloor()
 createBox()
 createSphere()
 createCylinder()
+createCastle()
 
 animate()
