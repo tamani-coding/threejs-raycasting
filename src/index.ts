@@ -63,7 +63,7 @@ function createFloor() {
   blockPlane.receiveShadow = true;
   scene.add(blockPlane);
 
-  blockPlane.userData.floor = true
+  blockPlane.userData.ground = true
 }
 
 // box
@@ -110,7 +110,6 @@ function createCylinder() {
   cylinder.receiveShadow = true
   scene.add(cylinder)
 
-  //Ammojs
   cylinder.userData.draggable = true
   cylinder.userData.name = 'CYLINDER'
 }
@@ -178,7 +177,7 @@ function dragObject() {
     const found = intersect(moveMouse);
     if (found.length > 0) {
       for (let i = 0; i < found.length; i++) {
-        if (!found[i].object.userData.floor)
+        if (!found[i].object.userData.ground)
           continue
         
         let target = found[i].point;
